@@ -30,6 +30,7 @@ public class TwitterProducer {
     String token = "350729647-BJ9bTQgnpLLDrb4dHIrawuoe8x2m82PohjbVPGc1";
     String secret = "3Yj4HdWSQsCdR7GrWtwojTl9dgmtpm0uwkSKLudNC7qhu";
     List<String> terms = Lists.newArrayList("kafka");
+    // List<String> terms = Lists.newArrayList("bitcoin","usa","politics","sport","soccer");
 
     public  TwitterProducer(){
 
@@ -108,6 +109,18 @@ public class TwitterProducer {
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServers);
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,StringSerializer.class.getName());
+
+        //create a safe producer
+        properties.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
+        properties.setProperty(ProducerConfig.ACKS_CONFIG, "all");
+        properties.setProperty(ProducerConfig.RETRIES_CONFIG, Integer.toString(Integer.MAX_VALUE));
+        properties.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION,"5"); // kafka version is >= 1.1 so we can keep this as 5. otherwise use 1
+
+        //hght throughput producer(at the expense of bit of latency and CPU usage)
+        properties.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG,"snappy");
+        properties.setProperty(ProducerConfig.LINGER_MS_CONFIG,"20");
+        properties.setProperty(ProducerConfig.BATCH_SIZE_CONFIG,Integer.toString(32*1024));
+
 
         //create a producer
         KafkaProducer<String,String> producer = new KafkaProducer<String, String>(properties);
